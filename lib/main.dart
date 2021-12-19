@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:androclient/contact.dart';
 import 'package:androclient/sms.dart';
 import 'package:androclient/call_logs.dart';
+import 'package:androclient/storage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -51,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: getCallLogs,
+        onPressed: getStorage,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),

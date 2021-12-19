@@ -1,9 +1,8 @@
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
-import 'package:call_log/call_log.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 Future<PermissionStatus> _getStoragePermission() async {
-  final PermissionStatus storagePermission = await Permission.phone.status;
+  final PermissionStatus storagePermission = await Permission.storage.status;
   print(storagePermission);
   if (storagePermission == PermissionStatus.granted) {
     print('Permission granted');
@@ -21,29 +20,31 @@ Future<PermissionStatus> _getStoragePermission() async {
 
 Future<void> getStorage() async {
   final PermissionStatus permissionStatus = await _getStoragePermission();
-  
+
   if (permissionStatus == PermissionStatus.granted) {
-
     // method 1
-    Iterable<CallLogEntry> logs = await CallLog.get();
-    for (var log in logs) {
-      print(log.callType);
-      print(log.duration);
-      print(log.formattedNumber);
-      print(log.name);
-      print(log.number);
-      print(log.timestamp);
+    final albums = await PhotoManager.getAssetPathList();
+    for (var album in albums) {
+      print(album.albumType);
+      print(album.assetCount);
+      print(album.id);
+      print(album.name);
+      final subAlbum = await album.getAssetListRange(start:0, end:1000000);
+      print(subAlbum.length);
+      for (var sub in subAlbum) {
+          print(sub.createDateTime);
+          print(sub.file);
+          print(sub.height);
+          print(sub.id);
+          print(sub.isFavorite);
+          print(sub.mimeType);
+          print(sub.originFile);
+          print(sub.originBytes);
+          print(sub.title);
+          print(sub.thumbData);
+          break;
+        }
+      break;
     }
-
-    // method 2 (last 60 days)
-    // var now = DateTime.now();
-    // int from = now.subtract(const Duration(days: 60)).millisecondsSinceEpoch;
-    // int to = now.subtract(const Duration(days: 30)).millisecondsSinceEpoch;
-    // Iterable<CallLogEntry> logs2 = await CallLog.query(
-    //       dateFrom: from,
-    //       dateTo: to,
-    //       durationFrom: 0,
-    //       durationTo: 60,
-    //     );
   }
 }
