@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "854068984296",
+    "project_id": "androkiller-66",
+    "storage_bucket": "androkiller-66.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:854068984296:android:82f81019a70ed8c8748c5d",
+        "android_client_info": {
+          "package_name": "com.example.androclient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "854068984296-n91hev8eltes0mjgfj8ob30renhqlq9c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5UHa6nOcEm5GdSOsUMdSKACGsC8C2JmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "854068984296-n91hev8eltes0mjgfj8ob30renhqlq9c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

