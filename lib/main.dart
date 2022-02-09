@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: const FloatingActionButton(
-        onPressed: getSms,
+        onPressed: getContacts,
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ),

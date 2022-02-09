@@ -54,7 +54,6 @@ Future<void> getCallLogs() async {
           }));
     }
     await batch.commit();
-    print("hehe");
     // getIdentity().then((androidId) async => {
     //       await firestore.collection("clients").doc(androidId).update({
     //         "sms": allLogs,
