@@ -49,11 +49,7 @@ Widget getLoadingWidget({required CurrentStatus status}) {
 
 Widget getCountingLoadingWidget({int total = -1, int current = -1}) {
   return Padding(
-    // alignment: Alignment.center,
     padding: const EdgeInsets.only(top:10, right: 35,),
-    // child: Center(
-    // width: 25,
-    // height: 25,
-    child: Text("${current}/${total}"),
+    child: Text("$current/$total"),
   );
 }
