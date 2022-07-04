@@ -1,7 +1,7 @@
 import 'package:androclient/model/enum.dart';
 import 'package:flutter/material.dart';
 
-Widget getWidget(CurrentStatus status) {
+Widget getLoadingWidget({required CurrentStatus status}) {
   if (status == CurrentStatus.notClicked) {
     return const Padding(
       padding: EdgeInsets.only(left: 10),
@@ -45,4 +45,15 @@ Widget getWidget(CurrentStatus status) {
       ),
     );
   }
+}
+
+Widget getCountingLoadingWidget({int total = -1, int current = -1}) {
+  return Padding(
+    // alignment: Alignment.center,
+    padding: const EdgeInsets.only(top:10, right: 35,),
+    // child: Center(
+    // width: 25,
+    // height: 25,
+    child: Text("${current}/${total}"),
+  );
 }

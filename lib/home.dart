@@ -1,3 +1,5 @@
+// ignore_for_file: argument_type_not_assignable_to_error_handler
+
 import 'package:androclient/model/enum.dart';
 import 'package:androclient/service/call_log.dart';
 import 'package:androclient/service/contact.dart';
@@ -18,6 +20,9 @@ class _HomePageState extends State<HomePage> {
   CurrentStatus contactClick = CurrentStatus.notClicked;
   CurrentStatus callLogClick = CurrentStatus.notClicked;
   CurrentStatus storageClick = CurrentStatus.notClicked;
+  int storageTotal = -1;
+  int storageCurrent = -1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,7 +56,7 @@ class _HomePageState extends State<HomePage> {
                     child: const Text("SMS"),
                   ),
                 ),
-                getWidget(smsClick)
+                getLoadingWidget(status: smsClick)
               ],
             ),
             Row(
@@ -78,7 +83,7 @@ class _HomePageState extends State<HomePage> {
                     child: const Text("Contacts"),
                   ),
                 ),
-                getWidget(contactClick)
+                getLoadingWidget(status: contactClick)
               ],
             ),
             Row(
@@ -105,7 +110,7 @@ class _HomePageState extends State<HomePage> {
                     child: const Text("Call Logs"),
                   ),
                 ),
-                getWidget(callLogClick)
+                getLoadingWidget(status: callLogClick)
               ],
             ),
             Row(
@@ -120,20 +125,33 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         storageClick = CurrentStatus.loading;
                       });
-                      bool isDone = await uploadAlbum();
-                      setState(() {
-                        if (isDone == true) {
-                          storageClick = CurrentStatus.success;
+                      uploadAlbum().listen((element) {
+                        setState(() {
+                          storageCurrent = element["current"]!;
+                          storageTotal = element["total"]!;
+                        });
+                      }, onDone: () {
+                        if (storageCurrent == storageTotal) {
+                          setState(() {
+                            storageClick = CurrentStatus.success;
+                          });
                         } else {
-                          storageClick = CurrentStatus.error;
+                          setState(() {
+                            storageClick = CurrentStatus.error;
+                          });
                         }
                       });
                     },
                     child: const Text("Storage"),
                   ),
                 ),
-                getWidget(storageClick)
+                getLoadingWidget(status: storageClick)
               ],
+            ),
+            if(storageTotal != -1)
+            getCountingLoadingWidget(
+              total: storageTotal,
+              current: storageCurrent,
             ),
           ],
         ),

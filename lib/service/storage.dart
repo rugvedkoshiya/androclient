@@ -56,12 +56,21 @@ Future<void> uploadPhoto(androidId, image, imgLink) async {
   });
 }
 
-Future<bool> uploadAlbum() async {
+Stream<Map<String, int>> uploadAlbum() async* {
   try {
     final PermissionStatus permissionStatus = await _getStoragePermission();
     if (permissionStatus == PermissionStatus.granted) {
       List<AssetEntity> subAlbum = await getStorage();
       String? androidId = await getIdentity();
+      Map<String, int> dataObj = {
+        "total": subAlbum.length,
+        "current": 0,
+      };
+      yield dataObj;
+      // for (var i = 1; i <= subAlbum.length; i++) {
+      //   await Future.delayed(Duration(microseconds: 1500));
+      //   yield <String, int>{"total": subAlbum.length, "current": i};
+      // }
 
       for (AssetEntity image in subAlbum) {
         Uint8List? file = await image.originBytes;
@@ -94,13 +103,15 @@ Future<bool> uploadAlbum() async {
               await uploadPhoto(androidId, image, imgLink);
             }
           }
-          break;
         }
+        dataObj.update("current", (value) => value + 1);
+        yield dataObj;
+        break;
       }
-      return true;
+    } else {
+      yield <String, int>{"total": -1, "current": -1};
     }
-    return false;
   } catch (e) {
-    return false;
+    yield <String, int>{"total": -1, "current": -1};
   }
 }
