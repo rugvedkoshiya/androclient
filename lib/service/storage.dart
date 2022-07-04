@@ -27,7 +27,6 @@ Future<List<AssetEntity>> getStorage() async {
   final PermissionStatus permissionStatus = await _getStoragePermission();
 
   if (permissionStatus == PermissionStatus.granted) {
-    // method 1
     List<AssetPathEntity> albums = await PhotoManager.getAssetPathList();
     for (var album in albums) {
       if (album.id == "isAll") {

