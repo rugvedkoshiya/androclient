@@ -5,9 +5,15 @@ import 'package:flutter/material.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp().then((value) => {
-        createIdentity().then((value) => {runApp(const App())})
-      });
+  Firebase.initializeApp().then(
+    (value) => {
+      createIdentity().then(
+        (value) => {
+          runApp(const App()),
+        },
+      )
+    },
+  );
 }
 
 class App extends StatelessWidget {

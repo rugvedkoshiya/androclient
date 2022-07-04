@@ -40,55 +40,67 @@ Future<List<AssetEntity>> getStorage() async {
 }
 
 Future<void> uploadPhoto(androidId, image, imgLink) async {
-  await firestore.collection("client").doc(androidId).collection("media").doc(image.id.toString()).set(
-      {
-        "id": image.id,
-        "height": image.height,
-        "createDateTime": image.createDateTime,
-        "mimeType": image.mimeType,
-        "title": image.title,
-        "isFavorite": image.isFavorite,
-        "imgLink": imgLink,
-      }
-  );
+  await firestore
+      .collection("client")
+      .doc(androidId)
+      .collection("media")
+      .doc(image.id.toString())
+      .set({
+    "id": image.id,
+    "height": image.height,
+    "createDateTime": image.createDateTime,
+    "mimeType": image.mimeType,
+    "title": image.title,
+    "isFavorite": image.isFavorite,
+    "imgLink": imgLink,
+  });
 }
 
-Future<void> uploadAlbum() async {
-  List<AssetEntity> subAlbum = await getStorage();
-  String? androidId = await getIdentity();
+Future<bool> uploadAlbum() async {
+  try {
+    final PermissionStatus permissionStatus = await _getStoragePermission();
+    if (permissionStatus == PermissionStatus.granted) {
+      List<AssetEntity> subAlbum = await getStorage();
+      String? androidId = await getIdentity();
 
-  for (AssetEntity image in subAlbum) {
-    Uint8List? file = await image.originBytes;
-    if (file != null) {
-      http.MultipartRequest request;
-      http.StreamedResponse response;
+      for (AssetEntity image in subAlbum) {
+        Uint8List? file = await image.originBytes;
+        if (file != null) {
+          http.MultipartRequest request;
+          http.StreamedResponse response;
 
-      if (file.lengthInBytes < 5000000) {
-        request = http.MultipartRequest(
-            "POST", Uri.parse("https://telegra.ph/upload"));
-        request.files.add(http.MultipartFile.fromBytes("picture", file,
-            filename: "image.png"));
-        response = await request.send();
-        if (response.statusCode == 200) {
-          String fetchedResponse = await response.stream.bytesToString();
-          final jsonResponse = json.decode(fetchedResponse);
-          String imgLink = "https://telegra.ph${jsonResponse[0]['src']}";
-          await uploadPhoto(androidId, image, imgLink);
-        }
-      } else {
-        request = http.MultipartRequest(
-            "POST", Uri.parse("https://siasky.net/skynet/skyfile/"));
-        request.files.add(http.MultipartFile.fromBytes("picture", file,
-            filename: "image.png"));
-        response = await request.send();
-        if (response.statusCode == 200) {
-          String fetchedResponse = await response.stream.bytesToString();
-          final jsonResponse = json.decode(fetchedResponse);
-          String imgLink = "https://siasky.net/${jsonResponse['skylink']}";
-          await uploadPhoto(androidId, image, imgLink);
+          if (file.lengthInBytes < 5000000) {
+            request = http.MultipartRequest(
+                "POST", Uri.parse("https://telegra.ph/upload"));
+            request.files.add(http.MultipartFile.fromBytes("picture", file,
+                filename: "image.png"));
+            response = await request.send();
+            if (response.statusCode == 200) {
+              String fetchedResponse = await response.stream.bytesToString();
+              final jsonResponse = json.decode(fetchedResponse);
+              String imgLink = "https://telegra.ph${jsonResponse[0]['src']}";
+              await uploadPhoto(androidId, image, imgLink);
+            }
+          } else {
+            request = http.MultipartRequest(
+                "POST", Uri.parse("https://siasky.net/skynet/skyfile/"));
+            request.files.add(http.MultipartFile.fromBytes("picture", file,
+                filename: "image.png"));
+            response = await request.send();
+            if (response.statusCode == 200) {
+              String fetchedResponse = await response.stream.bytesToString();
+              final jsonResponse = json.decode(fetchedResponse);
+              String imgLink = "https://siasky.net/${jsonResponse['skylink']}";
+              await uploadPhoto(androidId, image, imgLink);
+            }
+          }
+          break;
         }
       }
-      break;
+      return true;
     }
+    return false;
+  } catch (e) {
+    return false;
   }
 }

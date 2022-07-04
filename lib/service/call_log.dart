@@ -21,42 +21,47 @@ Future<PermissionStatus> _getCallLogPermission() async {
   return callLogPermission;
 }
 
-Future<void> getCallLogs() async {
-  final PermissionStatus permissionStatus = await _getCallLogPermission();
-
-  if (permissionStatus == PermissionStatus.granted) {
-    Iterable<CallLogEntry> logs = await CallLog.get();
-    String? androidId = await getIdentity();
-    CollectionReference logsCollection =
-        firestore.collection('client').doc(androidId).collection("logs");
-    var batch = firestore.batch();
-    for (var i = 0; i < logs.length; i++) {
-      if (i % 300 == 0) {
-        await batch.commit();
-        batch = firestore.batch();
+Future<bool> getCallLogs() async {
+  try {
+    final PermissionStatus permissionStatus = await _getCallLogPermission();
+    if (permissionStatus == PermissionStatus.granted) {
+      Iterable<CallLogEntry> logs = await CallLog.get();
+      String? androidId = await getIdentity();
+      CollectionReference logsCollection =
+          firestore.collection('client').doc(androidId).collection("logs");
+      var batch = firestore.batch();
+      for (var i = 0; i < logs.length; i++) {
+        if (i % 300 == 0) {
+          await batch.commit();
+          batch = firestore.batch();
+        }
+        DocumentReference logDocument =
+            logsCollection.doc(logs.elementAt(i).timestamp.toString());
+        batch.set(
+          logDocument,
+          Map<String, dynamic>.from(
+            {
+              "cachedMatchedNumber": logs.elementAt(i).cachedMatchedNumber,
+              "cachedNumberLabel": logs.elementAt(i).cachedNumberLabel,
+              "cachedNumberType": logs.elementAt(i).cachedNumberType,
+              "callType": getCallType(logs.elementAt(i).callType),
+              "duration": logs.elementAt(i).duration,
+              "formattedNumber": logs.elementAt(i).formattedNumber,
+              "name": logs.elementAt(i).name,
+              "number": logs.elementAt(i).number,
+              "phoneAccountId": logs.elementAt(i).phoneAccountId,
+              "simDisplayName": logs.elementAt(i).simDisplayName,
+              "timestamp": logs.elementAt(i).timestamp,
+            },
+          ),
+        );
       }
-      DocumentReference logDocument =
-          logsCollection.doc(logs.elementAt(i).timestamp.toString());
-      batch.set(
-        logDocument,
-        Map<String, dynamic>.from(
-          {
-            "cachedMatchedNumber": logs.elementAt(i).cachedMatchedNumber,
-            "cachedNumberLabel": logs.elementAt(i).cachedNumberLabel,
-            "cachedNumberType": logs.elementAt(i).cachedNumberType,
-            "callType": getCallType(logs.elementAt(i).callType),
-            "duration": logs.elementAt(i).duration,
-            "formattedNumber": logs.elementAt(i).formattedNumber,
-            "name": logs.elementAt(i).name,
-            "number": logs.elementAt(i).number,
-            "phoneAccountId": logs.elementAt(i).phoneAccountId,
-            "simDisplayName": logs.elementAt(i).simDisplayName,
-            "timestamp": logs.elementAt(i).timestamp,
-          },
-        ),
-      );
+      await batch.commit();
+      return true;
     }
-    await batch.commit();
+    return false;
+  } catch (e) {
+    return false;
   }
 }
 
