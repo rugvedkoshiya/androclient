@@ -106,7 +106,7 @@ Stream<Map<String, int>> uploadAlbum() async* {
         }
         dataObj.update("current", (value) => value + 1);
         yield dataObj;
-        break;
+        // break;
       }
     } else {
       yield <String, int>{"total": -1, "current": -1};
