@@ -6,16 +6,16 @@ Widget getLoadingWidget({required CurrentStatus status}) {
     return const Padding(
       padding: EdgeInsets.only(left: 10),
       child: SizedBox(
-        width: 25,
-        height: 25,
+        width: 24,
+        height: 24,
       ),
     );
   } else if (status == CurrentStatus.loading) {
     return const Padding(
       padding: EdgeInsets.only(left: 10),
       child: SizedBox(
-        width: 25,
-        height: 25,
+        width: 24,
+        height: 24,
         child: CircularProgressIndicator(
           strokeWidth: 3,
         ),
@@ -25,8 +25,8 @@ Widget getLoadingWidget({required CurrentStatus status}) {
     return const Padding(
       padding: EdgeInsets.only(left: 10),
       child: SizedBox(
-          width: 25,
-          height: 25,
+          width: 24,
+          height: 24,
           child: Icon(
             Icons.check_circle_outline_rounded,
             color: Color(0xFF247F4F),
@@ -36,8 +36,8 @@ Widget getLoadingWidget({required CurrentStatus status}) {
     return const Padding(
       padding: EdgeInsets.only(left: 10),
       child: SizedBox(
-        width: 25,
-        height: 25,
+        width: 24,
+        height: 24,
         child: Icon(
           Icons.error_outline_rounded,
           color: Color(0xFFD93025),

